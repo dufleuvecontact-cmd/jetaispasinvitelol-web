@@ -1,0 +1,645 @@
+@import "tailwindcss";
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #ffffff;
+  background-color: #0b0c0f;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMjU2IDI1NicgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48ZmlsdGVyIGlkPSduJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC45JyBudW1PY3RhdmVzPSc0JyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI24pJyBvcGFjaXR5PScwLjA2Jy8+PC9zdmc+');
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #ff6b9d;
+  color: black;
+}
+
+a {
+  color: #ff6b9d;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ── Top Nav (Sleek Streetwear Black) ── */
+.tumblr-nav {
+  background-color: #030304;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMTI4IDEyOCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48ZmlsdGVyIGlkPSdnJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMS4yJyBudW1PY3RhdmVzPSczJyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsdGVyPSd1cmwoI2cpJyBvcGFjaXR5PScwLjA0Jy8+PC9zdmc+');
+  height: 45px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  border-bottom: 1px solid #1a1f26;
+}
+
+.nav-logo {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1.5px;
+  margin-right: 20px;
+  line-height: 1;
+}
+
+.nav-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: rgba(255,255,255,0.7);
+  margin-right: 12px;
+  text-transform: capitalize;
+}
+.nav-label.active {
+  color: #fff;
+}
+
+.nav-icons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.nav-icon-link {
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.nav-icon-link:hover {
+  color: #fff;
+}
+.nav-icon-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* ── Two-Column Layout ── */
+.tumblr-layout {
+  max-width: 100%;
+  width: 100%;
+  margin: 65px auto 60px;
+  padding: 0 40px;
+  display: flex;
+  gap: 25px;
+}
+
+.feed-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-col {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Post Row & Avatars (Left Column) ── */
+.post-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.post-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background-color: #4a6580;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-card {
+  flex: 1;
+  background: #14161d;
+  border: 1px solid #20242f;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Left pointing triangle connecting card to avatar */
+.post-card::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: -7px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid #14161d;
+  z-index: 10;
+}
+
+/* ── Post Creator Block (Polaroids) ── */
+.creator-card {
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 15px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  position: relative;
+}
+.creator-card::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: -7px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid #ffffff;
+  z-index: 10;
+}
+
+.creator-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Polaroid-style creator buttons */
+.polaroid-btn {
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  border-radius: 3px;
+  width: 75px;
+  height: 80px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.polaroid-btn:hover {
+  transform: translateY(-2px) rotate(1deg);
+  border-color: #529ecc;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+.polaroid-btn:active {
+  transform: translateY(0);
+}
+
+.polaroid-icon-box {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+.polaroid-icon-box img {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.polaroid-label {
+  font-size: 11px;
+  color: #666;
+  font-weight: bold;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+/* ── Panel Form inside Creator Card ── */
+.creator-panel {
+  border-top: 1px solid #eef1f5;
+  margin-top: 15px;
+  padding-top: 15px;
+}
+
+.form-label {
+  display: block;
+  font-size: 10px;
+  font-weight: bold;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid #bdc7d8;
+  border-radius: 3px;
+  outline: none;
+  background: #fafafa;
+  margin-bottom: 10px;
+}
+.form-input:focus {
+  border-color: #529ecc;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(82, 158, 204, 0.15);
+}
+
+/* Neon glow Waitlist input */
+.glowing-sms-input {
+  border-color: #ff6b9d;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+.glowing-sms-input:focus {
+  border-color: #c77dff;
+  box-shadow: 0 0 16px rgba(199, 125, 255, 0.5);
+}
+
+.form-submit-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  background: #529ecc;
+  border: 1px solid #3c82af;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.form-submit-btn:hover {
+  background: #3e88b8;
+}
+
+.waitlist-submit-btn {
+  background: #000;
+  border: 2px solid #ff6b9d;
+  box-shadow: 0 0 8px rgba(255, 107, 157, 0.3);
+  text-transform: uppercase;
+}
+.waitlist-submit-btn:hover {
+  background: #ff6b9d !important;
+  color: #000 !important;
+  box-shadow: 0 0 16px rgba(255, 107, 157, 0.6);
+}
+
+.sms-success-main {
+  font-size: 13px;
+  font-weight: bold;
+  color: #4b8a3e;
+  padding: 10px;
+  background: #e6f4ea;
+  border: 1px solid #a3cf9a;
+  border-radius: 3px;
+  text-align: center;
+}
+
+/* ── Party Card Content (Left Column) ── */
+.party-card-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid #20242f;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.party-card-header a {
+  font-weight: bold;
+  color: #ff6b9d;
+}
+
+.party-flyer-container {
+  width: 90%;
+  margin: 15px auto 0;
+  background-color: #0b0c0e;
+  overflow: hidden;
+  border: 1px solid #20242f;
+  border-radius: 4px;
+}
+.party-flyer-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: scale(1.08);
+}
+
+.party-details {
+  padding: 15px;
+}
+
+.party-title {
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.party-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.meta-row {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.meta-row strong {
+  color: #ffffff;
+}
+
+.party-description {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.party-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.party-tags span {
+  font-size: 12px;
+  color: #ff6b9d;
+  font-family: monospace;
+  background: rgba(255, 107, 157, 0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.party-card-footer {
+  padding: 10px 15px;
+  background: #0f1115;
+  border-top: 1px solid #20242f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notes-count {
+  font-size: 11px;
+  font-weight: bold;
+  color: #94a3b8;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.action-btn:hover {
+  color: #ff6b9d;
+}
+.action-btn.active {
+  color: #ff6b9d;
+}
+.action-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* ── Sidebar Column (Right Column) ── */
+.sidebar-btn {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sidebar-green {
+  background: #000000;
+  border: 2px solid #ff6b9d;
+  color: #ff6b9d;
+  box-shadow: 0 0 10px rgba(255, 107, 157, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+.btn-sidebar-green:hover {
+  background: #ff6b9d;
+  color: #000000;
+  box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+}
+
+.sidebar-link-btn {
+  width: 100%;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-link-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+}
+
+.sidebar-stats-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #14161d;
+  border-radius: 4px;
+  border: 1px solid #20242f;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.85);
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+}
+.stat-item:hover {
+  color: #ff6b9d;
+}
+.stat-item svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* ── Radar Card (Sidebar Widget) ── */
+.radar-widget {
+  background: #14161d;
+  border-radius: 4px;
+  border: 1px solid #20242f;
+  padding: 12px;
+}
+
+.radar-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.radar-card-inner {
+  background: #0f1115;
+  border: 1px solid #20242f;
+  border-radius: 3px;
+  padding: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.radar-img-box {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  background-color: #0b0c0e;
+}
+.radar-img-box img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.radar-user-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.radar-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #c77dff, #ff6b9d);
+}
+
+.radar-username {
+  font-weight: bold;
+  font-size: 12px;
+  color: #ff6b9d;
+}
+
+/* ── File Preview ── */
+.file-preview {
+  margin-top: 8px;
+  margin-bottom: 10px;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #1a1f26;
+  border: 1px solid #20242f;
+}
+.file-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.glitch-text {
+  font-family: monospace;
+  color: #ff6b9d;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+/* ── Premium Waitlist Box ── */
+.post-waitlist-section {
+  margin-top: 25px;
+  background: #090a0d;
+  border: 1px solid #ff6b9d;
+  box-shadow: 0 0 15px rgba(255, 107, 157, 0.15);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+/* ── Sidebar Agenda RSVP Buttons ── */
+.agenda-item-btn {
+  background: rgba(255,107,157,0.08);
+  border: 1px solid rgba(255,107,157,0.2);
+  color: #ff6b9d;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 6px;
+  display: inline-block;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  outline: none;
+}
+.agenda-item-btn:hover {
+  background: #ff6b9d;
+  color: #000000;
+  box-shadow: 0 0 8px rgba(255, 107, 157, 0.4);
+}
+
+/* ── Mobile responsiveness ── */
+@media (max-width: 800px) {
+  .tumblr-layout {
+    flex-direction: column;
+    margin-top: 60px;
+  }
+  .sidebar-col {
+    width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .post-avatar {
+    display: none;
+  }
+  .post-card::before, .creator-card::before {
+    display: none;
+  }
+}
