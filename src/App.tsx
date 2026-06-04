@@ -7,6 +7,7 @@ import foreverYoung from "../forever_young.jpg";
 import pastParty1 from "../past_party_1_1780361077564.png";
 import pastParty2 from "../past_party_2_1780361120358.png";
 import WaiverPopup from "./WaiverPopup";
+import InfoPost from "./InfoPost";
 
 // ── SVG Icons (Material Style for 2010 feel) ──
 const LikeIcon = ({ active }: { active: boolean }) => (
@@ -367,6 +368,10 @@ export default function App() {
                 <div style={{ fontSize: "24px", fontStyle: "italic", fontWeight: "bold" }}>{t.noEvents}</div>
               </div>
             )}
+            
+            {/* Pinned Info Post */}
+            <InfoPost />
+
             {!loading && posts.map(post => (
               <div className="post-row" key={post.id} id={`post-${post.id}`}>
                 
@@ -531,7 +536,7 @@ export default function App() {
               </button>
             </div>
             <div className="stat-item" style={{ cursor: "default" }}>
-              <span style={{ fontSize: "16px", marginRight: "8px" }}>👑</span> {t.vipTracker} : <strong style={{ color: "#00ff9d", marginLeft: "4px" }}>17 / 50</strong>
+              {t.vipTracker} : <strong style={{ color: "#00ff9d", marginLeft: "4px" }}>1 / 25</strong>
             </div>
           </div>
 
