@@ -153,6 +153,7 @@ export default function App() {
   const [sidebarPhone, setSidebarPhone] = useState("");
   const [sidebarSmsSubmitted, setSidebarSmsSubmitted] = useState(false);
   const [preordered, setPreordered] = useState(false);
+  const [showNoPartyAlert, setShowNoPartyAlert] = useState(false);
 
   const focusPost = (id: string) => {
     const el = document.getElementById(`post-${id}`);
@@ -460,9 +461,22 @@ export default function App() {
         <div className="sidebar-col">
           
           {/* Green waitlist active widget */}
-          <button className="sidebar-btn btn-sidebar-green" onClick={() => { if (posts.length === 0) { alert(t.noPartyAlert); } else { focusPost("1"); } }}>
+          <button className="sidebar-btn btn-sidebar-green" onClick={() => { 
+            if (posts.length === 0) { 
+              setShowNoPartyAlert(true); 
+              setTimeout(() => setShowNoPartyAlert(false), 4000); 
+            } else { 
+              focusPost("1"); 
+            } 
+          }}>
             <AddUserIcon /> {t.reserveBtn}
           </button>
+
+          {showNoPartyAlert && (
+            <div className="sidebar-stats-box" style={{ border: "1px solid #ff6b9d", color: "#ff6b9d", textAlign: "center", fontWeight: "bold", marginTop: "-10px", marginBottom: "15px", animation: "pulse 2s infinite" }}>
+              {t.noPartyAlert}
+            </div>
+          )}
 
           {/* SMS Updates Button/Widget */}
           {!showSmsForm ? (
