@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "./firebaseClient";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
 import foreverYoung from "../forever_young.jpg";
 import pastParty1 from "../past_party_1_1780361077564.png";
 import pastParty2 from "../past_party_2_1780361120358.png";
@@ -159,38 +159,64 @@ export default function App() {
     }
   };
   
-  // Default party posts pre-populated
-  const [posts, setPosts] = useState<PartyPost[]>(() => {
-    const saved = localStorage.getItem("jetaispasinvitelol_posts");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Migrate old data
-      return parsed.map((p: any) => ({
-        ...p,
-        likes: p.likes ?? 1420,
-        reposts: p.reposts ?? 342
-      }));
-    }
-    return [
-      {
-        id: "1",
-        title: "#001 – HANGAR PARTY",
-        date: "",
-        location: "",
-        tickets: "",
-        image: foreverYoung,
-        likes: 1420,
-        reposts: 342,
-        liked: false,
-        tags: ["#2016", "#la", "#houseparty"],
-        username: "jetaispasinvitelol"
-      }
-    ];
-  });
+  const [posts, setPosts] = useState<PartyPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem("jetaispasinvitelol_posts", JSON.stringify(posts));
-  }, [posts]);
+    const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
+      if (!snapshot.empty) {
+        const fetched = snapshot.docs.map(docSnap => {
+          const data = docSnap.data();
+          return {
+            id: docSnap.id,
+            title: data.title || "",
+            date: data.date || "",
+            location: data.location || "",
+            tickets: data.tickets_text || "",
+            image: data.image_url || foreverYoung,
+            likes: data.likes || 0,
+            reposts: data.reposts || 0,
+            tags: data.tags || [],
+            username: data.username || "jetaispasinvitelol",
+            liked: false
+          } as PartyPost;
+        });
+        setPosts(fetched);
+      } else {
+        // Fallback static
+        setPosts([
+          {
+            id: "1",
+            title: "#001 – HANGAR PARTY",
+            date: "",
+            location: "",
+            tickets: "",
+            image: foreverYoung,
+            likes: 1420,
+            reposts: 342,
+            liked: false,
+            tags: ["#2016", "#la", "#houseparty"],
+            username: "jetaispasinvitelol"
+          }
+        ]);
+        // Seed the database
+        addDoc(collection(db, "events"), {
+            title: "#001 – HANGAR PARTY",
+            date: "",
+            location: "",
+            tickets_text: "",
+            image_url: "/forever_young.jpg",
+            likes: 1420,
+            reposts: 342,
+            tags: ["#2016", "#la", "#houseparty"],
+            username: "jetaispasinvitelol",
+            created_at: serverTimestamp()
+        }).catch(console.error);
+      }
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -207,13 +233,23 @@ export default function App() {
   const handleSmsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sidebarPhone.trim()) {
-      
       try {
-        // Insert phone number into the 'subscribers' collection in Firestore
+        // 1. Insert phone number into the 'subscribers' collection in Firestore as backup
         await addDoc(collection(db, "subscribers"), {
           phone_number: sidebarPhone,
           created_at: serverTimestamp()
         });
+
+        // 2. Call our Vercel API to subscribe them to Klaviyo
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone_number: sidebarPhone })
+        });
+
+        if (!res.ok) {
+          console.error("Failed to subscribe to Klaviyo");
+        }
 
         setSidebarSmsSubmitted(true);
         setTimeout(() => {
@@ -223,23 +259,32 @@ export default function App() {
         }, 4000);
 
       } catch (err) {
-        console.error("Firebase insert error:", err);
-        alert("Erreur lors de l'inscription. (Vérifiez les clés Firebase)");
+        console.error("Submission error:", err);
+        alert("Erreur lors de l'inscription.");
       }
     }
   };
 
-  const toggleLike = (id: string) => {
+  const toggleLike = async (id: string, currentlyLiked: boolean) => {
     setPosts(prev => prev.map(post => {
       if (post.id === id) {
         return {
           ...post,
-          liked: !post.liked,
-          likes: post.liked ? post.likes - 1 : post.likes + 1
+          liked: !currentlyLiked,
+          likes: currentlyLiked ? post.likes - 1 : post.likes + 1
         };
       }
       return post;
     }));
+
+    if (id === "1") return; // Don't try to update fallback
+    try {
+      await updateDoc(doc(db, "events", id), {
+        likes: increment(currentlyLiked ? -1 : 1)
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleRepost = async (id: string, title: string) => {
@@ -252,6 +297,16 @@ export default function App() {
       }
       return post;
     }));
+
+    if (id !== "1") {
+      try {
+        await updateDoc(doc(db, "events", id), {
+          reposts: increment(1)
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     if (navigator.share) {
       try {
@@ -399,7 +454,7 @@ export default function App() {
                       </button>
                       <button 
                         className={`action-btn ${post.liked ? "active" : ""}`}
-                        onClick={() => toggleLike(post.id)}
+                        onClick={() => toggleLike(post.id, post.liked)}
                       >
                         <LikeIcon active={post.liked} /> <span style={{ marginLeft: "4px" }}>{post.likes} {t.like}</span>
                       </button>
@@ -458,7 +513,7 @@ export default function App() {
             <div className="stat-item" onClick={() => focusPost("1")}>
               <CompassIcon /> {t.exploreParties}
             </div>
-            <div className="stat-item" onClick={() => toggleLike(posts[0].id)}>
+            <div className="stat-item" onClick={() => { if(posts.length > 0) toggleLike(posts[0].id, posts[0].liked); }}>
               <HeartIcon /> {t.likedPosts} ({posts.filter(p => p.liked).length + 223})
             </div>
           </div>
