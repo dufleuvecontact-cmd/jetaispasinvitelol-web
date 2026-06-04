@@ -108,7 +108,9 @@ const translations = {
     city: "Ville de Québec",
     notes: "notes",
     reblog: "Rebloguer",
-    like: "J'aime"
+    like: "J'aime",
+    noEvents: "Oups, aucun événement/party n'est encore publié",
+    noPartyAlert: ":( aucun party publié"
   },
   en: {
     dashboard: "Dashboard",
@@ -135,7 +137,9 @@ const translations = {
     city: "Quebec City",
     notes: "notes",
     reblog: "Reblog",
-    like: "Like"
+    like: "Like",
+    noEvents: "Oops, no events/parties posted up yet",
+    noPartyAlert: ":( no party posted"
   }
 };
 
@@ -351,7 +355,7 @@ export default function App() {
           <div className="flex flex-col">
             {posts.length === 0 && !loading && (
               <div style={{ padding: "40px", textAlign: "center", color: "#a8b6c5", fontSize: "16px", fontStyle: "italic", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0" }}>
-                feed this is here parties/ events wiill be posted
+                {t.noEvents}
               </div>
             )}
             {posts.map(post => (
@@ -449,7 +453,7 @@ export default function App() {
         <div className="sidebar-col">
           
           {/* Green waitlist active widget */}
-          <button className="sidebar-btn btn-sidebar-green" onClick={() => focusPost("1")}>
+          <button className="sidebar-btn btn-sidebar-green" onClick={() => { if (posts.length === 0) { alert(t.noPartyAlert); } else { focusPost("1"); } }}>
             <AddUserIcon /> {t.reserveBtn}
           </button>
 
