@@ -110,7 +110,8 @@ const translations = {
     reblog: "Rebloguer",
     like: "J'aime",
     noEvents: "Oups, aucun événement/party n'est encore publié",
-    noPartyAlert: ":( aucun party publié"
+    noPartyAlert: ":( aucun party publié",
+    loading: "Chargement..."
   },
   en: {
     dashboard: "Dashboard",
@@ -139,7 +140,8 @@ const translations = {
     reblog: "Reblog",
     like: "Like",
     noEvents: "Oops, no events/parties posted up yet",
-    noPartyAlert: ":( no party posted"
+    noPartyAlert: ":( no party posted",
+    loading: "Loading..."
   }
 };
 
@@ -353,13 +355,17 @@ export default function App() {
           
           {/* Infinite Party Feed Card List */}
           <div className="flex flex-col">
-            {posts.length === 0 && !loading && (
+            {loading ? (
+              <div style={{ padding: "60px", textAlign: "center", color: "#a8b6c5", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0", animation: "pulse 1.5s infinite" }}>
+                <div style={{ fontSize: "24px", fontStyle: "italic", fontWeight: "bold", opacity: 0.5 }}>{t.loading}</div>
+              </div>
+            ) : posts.length === 0 ? (
               <div style={{ padding: "60px", textAlign: "center", color: "#a8b6c5", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0" }}>
                 <div style={{ fontSize: "64px", fontWeight: "bold", color: "#ff6b9d", marginBottom: "20px" }}>:(</div>
                 <div style={{ fontSize: "24px", fontStyle: "italic", fontWeight: "bold" }}>{t.noEvents}</div>
               </div>
-            )}
-            {posts.map(post => (
+            ) : null}
+            {!loading && posts.map(post => (
               <div className="post-row" key={post.id} id={`post-${post.id}`}>
                 
                 {/* Left post avatar */}
