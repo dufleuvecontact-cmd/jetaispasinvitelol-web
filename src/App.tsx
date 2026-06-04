@@ -77,8 +77,8 @@ const translations = {
     preorderConfirmed: "Précommande confirmée !",
     preorderSubtext: "Ta place a été réservée. Tu recevras ton lien de paiement par SMS sous peu.",
     reserveBtn: "Réserver un billet",
-    smsBtn: "Recevoir par SMS",
-    smsHeader: "INFOS / ACCÈS PAR SMS",
+    smsBtn: "Recevoir via Instagram",
+    smsHeader: "INFOS / ACCÈS PAR IG",
     smsSubscribe: "M'INSCRIRE",
     smsSuccess: "Inscription réussie !",
     exploreParties: "Explorer les Soirées",
@@ -108,8 +108,8 @@ const translations = {
     preorderConfirmed: "Pre-order confirmed!",
     preorderSubtext: "We've saved your spot. You'll receive the payment link shortly.",
     reserveBtn: "Pre-order ticket",
-    smsBtn: "Get SMS alerts",
-    smsHeader: "INFO / ACCESS BY SMS",
+    smsBtn: "Get IG alerts",
+    smsHeader: "INFO / ACCESS BY IG",
     smsSubscribe: "SUBSCRIBE",
     smsSuccess: "Subscription successful!",
     exploreParties: "Explore Parties",
@@ -129,9 +129,9 @@ export default function App() {
   const { lang, setLang } = useLanguage();
   const t = translations[lang];
 
-  const [showSmsForm, setShowSmsForm] = useState(false);
-  const [sidebarPhone, setSidebarPhone] = useState("");
-  const [sidebarSmsSubmitted, setSidebarSmsSubmitted] = useState(false);
+  const [showIgForm, setShowIgForm] = useState(false);
+  const [igUsername, setIgUsername] = useState("");
+  const [sidebarIgSubmitted, setSidebarIgSubmitted] = useState(false);
   const [isUnsubscribe, setIsUnsubscribe] = useState(false);
   const [unsubscribeMessage, setUnsubscribeMessage] = useState("");
   const [preordered, setPreordered] = useState(false);
@@ -179,45 +179,33 @@ export default function App() {
     return () => unsub();
   }, []);
 
-  const handleSmsSubmit = async (e: React.FormEvent) => {
+  const handleIgSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (sidebarPhone.trim()) {
+    if (igUsername.trim()) {
       try {
         if (isUnsubscribe) {
-          const q = query(collection(db, "smsWaitlist"), where("phone_number", "==", sidebarPhone));
+          const q = query(collection(db, "igWaitlist"), where("ig_username", "==", igUsername));
           const querySnapshot = await getDocs(q);
           querySnapshot.forEach(async (docSnapshot) => {
-            await deleteDoc(doc(db, "smsWaitlist", docSnapshot.id));
+            await deleteDoc(doc(db, "igWaitlist", docSnapshot.id));
           });
-          const res = await fetch("/api/unsubscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone_number: sidebarPhone })
-          });
-          if (!res.ok) console.error("Failed to unsubscribe");
           setUnsubscribeMessage(lang === "fr" ? "Désabonnement réussi." : "Successfully unsubscribed.");
           setTimeout(() => {
             setUnsubscribeMessage("");
-            setSidebarPhone("");
-            setShowSmsForm(false);
+            setIgUsername("");
+            setShowIgForm(false);
             setIsUnsubscribe(false);
           }, 4000);
         } else {
-          await addDoc(collection(db, "smsWaitlist"), {
-            phone_number: sidebarPhone,
+          await addDoc(collection(db, "igWaitlist"), {
+            ig_username: igUsername,
             created_at: serverTimestamp()
           });
-          const res = await fetch("/api/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone_number: sidebarPhone })
-          });
-          if (!res.ok) console.error("Failed to subscribe");
-          setSidebarSmsSubmitted(true);
+          setSidebarIgSubmitted(true);
           setTimeout(() => {
-            setSidebarSmsSubmitted(false);
-            setSidebarPhone("");
-            setShowSmsForm(false);
+            setSidebarIgSubmitted(false);
+            setIgUsername("");
+            setShowIgForm(false);
           }, 4000);
         }
       } catch (err) {
@@ -374,13 +362,13 @@ export default function App() {
             </div>
           )}
 
-          {!showSmsForm ? (
-            <button className="sidebar-link-btn" onClick={() => setShowSmsForm(true)}>
+          {!showIgForm ? (
+            <button className="sidebar-link-btn" onClick={() => setShowIgForm(true)}>
               <MailIcon /> {t.smsBtn}
             </button>
           ) : (
             <div className="post-waitlist-section" style={{ textAlign: "center", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#c77dff'}`, boxShadow: `0 0 10px ${isUnsubscribe ? 'rgba(255, 77, 77, 0.2)' : 'rgba(199, 125, 255, 0.2)'}` }}>
-              {sidebarSmsSubmitted ? (
+              {sidebarIgSubmitted ? (
                 <div style={{ color: "#c77dff", fontWeight: "bold", fontSize: "16px", padding: "10px" }}>
                   {lang === "fr" ? "Merci! Vous êtes sur la liste." : "Thanks! You're on the list."}
                 </div>
@@ -389,17 +377,17 @@ export default function App() {
                   {unsubscribeMessage}
                 </div>
               ) : (
-                <form onSubmit={handleSmsSubmit}>
+                <form onSubmit={handleIgSubmit}>
                   <div style={{ marginBottom: "10px", fontSize: "14px", fontWeight: "bold", color: isUnsubscribe ? "#ff4d4d" : "#c77dff" }}>
-                    {isUnsubscribe ? (lang === "fr" ? "Désabonnement SMS" : "SMS Unsubscribe") : (lang === "fr" ? "Alerte SMS (100 premières places)" : "SMS Alert (First 100 spots)")}
+                    {isUnsubscribe ? (lang === "fr" ? "Désabonnement IG" : "IG Unsubscribe") : (lang === "fr" ? "Alerte IG (100 premières places)" : "IG Alert (First 100 spots)")}
                   </div>
                   <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                     <input 
-                      type="tel" 
-                      placeholder="(514) 000-0000" 
+                      type="text" 
+                      placeholder="@username" 
                       className="form-input waitlist-input"
-                      value={sidebarPhone}
-                      onChange={(e) => setSidebarPhone(e.target.value)}
+                      value={igUsername}
+                      onChange={(e) => setIgUsername(e.target.value)}
                       required
                       style={{ flex: 1, maxWidth: "180px", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#3f4757'}`, backgroundColor: "#1a1e24", color: "#a8b6c5" }}
                     />
