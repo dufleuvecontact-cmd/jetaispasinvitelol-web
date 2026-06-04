@@ -22,7 +22,7 @@ export default function InfoPost() {
           {/* How it works */}
           <div style={{ marginBottom: '30px' }}>
             <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>comment ça marche</h3>
-            <p style={{ lineHeight: '1.6' }}>nous organisons des soirées à travers la ville de québec. parfois c'est une maison. parfois c'est une salle. à chaque fois c'est un bon moment.</p>
+            <p style={{ lineHeight: '1.6' }}>nous organisons des soirées à travers la ville de québec. parfois c'est une maison. parfois c'est une salle.</p>
           </div>
 
           {/* What to expect */}
@@ -101,7 +101,7 @@ export default function InfoPost() {
         {/* How it works */}
         <div style={{ marginBottom: '30px' }}>
           <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>how it works</h3>
-          <p style={{ lineHeight: '1.6' }}>we host parties across quebec city. sometimes it's a house. sometimes it's a venue. every time it's a good time.</p>
+          <p style={{ lineHeight: '1.6' }}>we host parties across quebec city. sometimes it's a house. sometimes it's a venue.</p>
         </div>
 
         {/* What to expect */}
