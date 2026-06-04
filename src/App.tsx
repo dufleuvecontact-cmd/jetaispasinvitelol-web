@@ -192,6 +192,18 @@ export default function App() {
     localStorage.setItem("jetaispasinvitelol_posts", JSON.stringify(posts));
   }, [posts]);
 
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("success")) {
+      setPreordered(true);
+      window.history.replaceState({}, document.title, "/");
+    }
+    if (query.get("canceled")) {
+      alert("La commande a été annulée. / Order was canceled.");
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, []);
+
   const handleSmsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sidebarPhone.trim()) {
@@ -253,6 +265,23 @@ export default function App() {
       }
     } else {
       alert("To share to your Instagram Story, please open this page on a mobile device!");
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const res = await fetch("/api/create-checkout", {
+        method: "POST"
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Payment failed to initiate.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Checkout error.");
     }
   };
 
@@ -347,7 +376,7 @@ export default function App() {
                     <div style={{ marginTop: "20px" }}>
                       {!preordered ? (
                         <button 
-                          onClick={() => setPreordered(true)}
+                          onClick={handleCheckout}
                           className="sidebar-btn btn-sidebar-green waitlist-submit-btn" 
                           style={{ width: "fit-content", padding: "10px 16px", fontSize: "12px", letterSpacing: "0.5px" }}
                         >
