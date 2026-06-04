@@ -7,7 +7,7 @@ export default function InfoPost() {
   if (lang === 'fr') {
     return (
       <div className="post-row" style={{ marginTop: '30px' }}>
-        <div className="post-card" style={{ backgroundColor: '#1a1e24', border: '1px solid #3f4757', padding: '30px', color: '#a8b6c5', fontFamily: "'DM Sans', sans-serif" }}>
+        <div className="post-card" style={{ backgroundColor: '#1a1e24', border: '1px solid #3f4757', padding: '30px', color: '#a8b6c5' }}>
           
           {/* Header section */}
           <div style={{ marginBottom: '30px', borderBottom: '1px solid #3f4757', paddingBottom: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -28,12 +28,12 @@ export default function InfoPost() {
           {/* What to expect */}
           <div style={{ marginBottom: '30px' }}>
             <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>à quoi s'attendre</h3>
-            <p style={{ lineHeight: '1.6', marginBottom: '15px' }}>chaque soirée est différente. la musique change. l'ambiance change. l'emplacement change. ce qui reste pareil : des bonnes personnes, de la bonne énergie, et pas de conneries.</p>
+            <p style={{ lineHeight: '1.6', marginBottom: '15px' }}>chaque soirée est différente. la musique change. l'ambiance change. l'emplacement change.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>musique</strong> — dépend de la soirée. ça peut être de la house, du rap 2016, du r&b, n'importe quoi. on a toujours un DJ. le thème est annoncé avant chaque événement.</p>
               <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>lieux</strong> — maisons, lofts, salles louées, peu importe ce qui correspond à l'ambiance. la capacité varie de 100 à 300 personnes selon l'endroit.</p>
-              <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>sécurité</strong> — chaque événement a des agents de sécurité accrédités à l'entrée. fouille des sacs. zéro alcool sur place. aucune exception.</p>
+              <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>sécurité</strong> — chaque événement a des agents de sécurité accrédités à l'entrée. fouille des sacs.</p>
             </div>
           </div>
 
@@ -86,7 +86,7 @@ export default function InfoPost() {
 
   return (
     <div className="post-row" style={{ marginTop: '30px' }}>
-      <div className="post-card" style={{ backgroundColor: '#1a1e24', border: '1px solid #3f4757', padding: '30px', color: '#a8b6c5', fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="post-card" style={{ backgroundColor: '#1a1e24', border: '1px solid #3f4757', padding: '30px', color: '#a8b6c5' }}>
         
         {/* Header section */}
         <div style={{ marginBottom: '30px', borderBottom: '1px solid #3f4757', paddingBottom: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -107,12 +107,12 @@ export default function InfoPost() {
         {/* What to expect */}
         <div style={{ marginBottom: '30px' }}>
           <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>what to expect</h3>
-          <p style={{ lineHeight: '1.6', marginBottom: '15px' }}>every party is different. the music changes. the vibe changes. the location changes. what stays the same: good people, good energy, and no bullshit.</p>
+          <p style={{ lineHeight: '1.6', marginBottom: '15px' }}>every party is different. the music changes. the vibe changes. the location changes.</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>music</strong> — depends on the night. could be house, 2016 rap, r&b, you name it. we always have a DJ. the theme gets announced before each event.</p>
             <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>venues</strong> — houses, lofts, rented rooms, whatever fits the vibe. capacity ranges from 100 to 300 depending on the spot.</p>
-            <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>security</strong> — every event has licensed security at the door. bag checks on entry. zero alcohol on premises. no exceptions.</p>
+            <p style={{ margin: 0, lineHeight: '1.6' }}><strong style={{ color: '#fff' }}>security</strong> — every event has licensed security at the door. bag checks on entry.</p>
           </div>
         </div>
 
