@@ -23,11 +23,11 @@ export default function TermsText({ darkMode = false }: { darkMode?: boolean }) 
         <hr style={{ border: "0", borderTop: `1px solid ${borderColor}`, margin: "24px 0" }} />
 
         <h4 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "12px" }}>2. POLITIQUE ZÉRO ALCOOL</h4>
-        <p style={{ marginBottom: "16px" }}>Aucun alcool n'est autorisé à l'intérieur de la salle ou sur les lieux. Cela signifie :</p>
+        <p style={{ marginBottom: "16px" }}>Aucun alcool n'est autorisé à l'intérieur de la salle. Cela signifie :</p>
         <ul style={{ listStyleType: "disc", paddingLeft: "20px", marginBottom: "16px" }}>
           <li>Vous ne pouvez pas apporter d'alcool dans la salle</li>
           <li>Vous ne pouvez pas consommer d'alcool à l'intérieur de la salle</li>
-          <li>Vous ne pouvez pas stocker d'alcool sur les lieux</li>
+          <li>Vous ne pouvez pas stocker d'alcool</li>
         </ul>
         <p style={{ marginBottom: "16px" }}>La sécurité effectuera des fouilles de sacs à l'entrée. Tout alcool trouvé sera confisqué et l'entrée sera refusée au détenteur ou il sera expulsé sans remboursement.</p>
         <p style={{ marginBottom: "24px", fontWeight: "bold" }}>Cette politique est strictement appliquée. Aucune exception.</p>
@@ -149,11 +149,11 @@ export default function TermsText({ darkMode = false }: { darkMode?: boolean }) 
       <hr style={{ border: "0", borderTop: `1px solid ${borderColor}`, margin: "24px 0" }} />
 
       <h4 style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "12px" }}>2. ZERO ALCOHOL POLICY</h4>
-      <p style={{ marginBottom: "16px" }}>No alcohol is permitted inside the venue or on the venue premises. This means:</p>
+      <p style={{ marginBottom: "16px" }}>No alcohol is permitted inside the venue. This means:</p>
       <ul style={{ listStyleType: "disc", paddingLeft: "20px", marginBottom: "16px" }}>
         <li>You cannot bring alcohol into the venue</li>
         <li>You cannot consume alcohol inside the venue</li>
-        <li>You cannot store alcohol on the venue premises</li>
+        <li>You cannot store alcohol</li>
       </ul>
       <p style={{ marginBottom: "16px" }}>Security will conduct bag checks at the entrance. Any alcohol found will be confiscated and the holder will be refused entry or removed without refund.</p>
       <p style={{ marginBottom: "24px", fontWeight: "bold" }}>This policy is strictly enforced. No exceptions.</p>
