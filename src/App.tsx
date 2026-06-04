@@ -268,21 +268,8 @@ export default function App() {
     }
   };
 
-  const handleCheckout = async () => {
-    try {
-      const res = await fetch("/api/create-checkout", {
-        method: "POST"
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || "Payment failed to initiate.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Checkout error.");
-    }
+  const handleCheckout = () => {
+    window.location.href = "https://buy.stripe.com/eVq7sK72K8WA1BP3ALasg00";
   };
 
   return (
