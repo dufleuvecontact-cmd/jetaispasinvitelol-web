@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "./LanguageContext";
 import { db } from "./firebaseClient";
 import { collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
 import foreverYoung from "../forever_young.jpg";
@@ -147,7 +149,7 @@ const translations = {
 };
 
 export default function App() {
-  const [lang, setLang] = useState<"fr" | "en">("fr");
+  const { lang, setLang } = useLanguage();
   const t = translations[lang];
 
   const [showSmsForm, setShowSmsForm] = useState(false);
@@ -341,10 +343,9 @@ export default function App() {
             {/* Nav Icons */}
             <div className="nav-icons" style={{ display: "flex", gap: "14px" }}>
               <div className="nav-icon-link" title={t.dashboard} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><HomeIcon /></div>
-              <div className="nav-icon-link" title={t.inbox} onClick={() => focusPost("1")}><MailIcon /></div>
-              <div className="nav-icon-link" title={t.help}><QuestionIcon /></div>
+              <a href="https://instagram.com/jetaispasinvite" target="_blank" rel="noreferrer" className="nav-icon-link" title="Instagram" style={{ color: "inherit" }}><MailIcon /></a>
+              <Link to="/terms" className="nav-icon-link" title="Privacy & TOS" style={{ color: "inherit" }}><QuestionIcon /></Link>
               <div className="nav-icon-link" title={t.settings}><GearIcon /></div>
-              <div className="nav-icon-link" title={t.logout}><PowerIcon /></div>
             </div>
           </div>
         </div>
@@ -510,8 +511,22 @@ export default function App() {
 
           {/* Stats list box */}
           <div className="sidebar-stats-box">
-            <div className="stat-item" onClick={() => focusPost("1")}>
-              <CompassIcon /> {t.exploreParties}
+            <div style={{ display: 'flex', flexDirection: 'column', padding: '12px', background: 'rgba(255, 107, 157, 0.05)', border: '1px dashed #ff6b9d', borderRadius: '8px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', color: '#ff6b9d', marginBottom: '8px', fontSize: '13px' }}>
+                <CompassIcon /> Pré-acheter tous les billets
+              </div>
+              <div style={{ fontSize: '11px', color: '#a8b6c5', lineHeight: '1.4' }}>
+                (3 événements garantis, 5 projetés)
+                <br /><br />
+                <span style={{ color: '#00ff9d', fontWeight: 'bold' }}>PASS VIP INCLUS - 80$</span>
+                <br />
+                • Snacks et breuvages presque illimités (gratuits)<br />
+                • Entrée et sortie prioritaires<br />
+                <span style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', display: 'block', marginTop: '6px' }}>* Non-remboursable</span>
+              </div>
+              <button onClick={handleCheckout} style={{ marginTop: '12px', width: '100%', padding: '8px', backgroundColor: '#ff6b9d', color: '#0f1115', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Acheter le Pass VIP
+              </button>
             </div>
             <div className="stat-item" onClick={() => { if(posts.length > 0) toggleLike(posts[0].id, posts[0].liked); }}>
               <HeartIcon /> {t.likedPosts} ({posts.filter(p => p.liked).length + 223})
@@ -523,6 +538,9 @@ export default function App() {
             jetaispasinvitelol — 2026
             <br />
             {t.city}
+            <br />
+            <br />
+            <Link to="/terms" style={{ color: "rgba(255,255,255,0.3)", textDecoration: "underline" }}>Terms</Link> &bull; <Link to="/privacy" style={{ color: "rgba(255,255,255,0.3)", textDecoration: "underline" }}>Privacy</Link>
           </footer>
 
         </div>

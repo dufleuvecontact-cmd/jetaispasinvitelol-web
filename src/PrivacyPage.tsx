@@ -1,13 +1,13 @@
 import React from 'react';
-import TermsText from './TermsText';
+import PrivacyText from './PrivacyText';
 import { Link } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 
-export default function TermsPage() {
+export default function PrivacyPage() {
   const { lang, setLang } = useLanguage();
   const t = {
-    en: { back: "Back to Tickets" },
-    fr: { back: "Retour aux Billets" }
+    en: { back: "Back to Main" },
+    fr: { back: "Retour à l'accueil" }
   }[lang];
 
   return (
@@ -20,7 +20,7 @@ export default function TermsPage() {
         </div>
       </div>
       <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-        <TermsText />
+        <PrivacyText />
       </div>
       
       {/* Sticky Back Button */}
