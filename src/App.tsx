@@ -112,6 +112,7 @@ const translations = {
     notes: "notes",
     reblog: "Rebloguer",
     like: "J'aime",
+    vipTracker: "Pass VIP vendus",
     noEvents: "Oups, aucun événement/party n'est encore publié",
     noPartyAlert: ":( aucun party publié",
     loading: "Chargement..."
@@ -142,6 +143,7 @@ const translations = {
     notes: "notes",
     reblog: "Reblog",
     like: "Like",
+    vipTracker: "VIP Passes Sold",
     noEvents: "Oops, no events/parties posted up yet",
     noPartyAlert: ":( no party posted",
     loading: "Loading..."
@@ -524,12 +526,12 @@ export default function App() {
                 • Entrée et sortie prioritaires<br />
                 <span style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', display: 'block', marginTop: '6px' }}>* Non-remboursable</span>
               </div>
-              <button onClick={handleCheckout} style={{ marginTop: '12px', width: '100%', padding: '8px', backgroundColor: '#ff6b9d', color: '#0f1115', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => window.location.href = "https://buy.stripe.com/dRm14m1Iq6Os5S50ozasg01"} style={{ marginTop: '12px', width: '100%', padding: '8px', backgroundColor: '#ff6b9d', color: '#0f1115', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Acheter le Pass VIP
               </button>
             </div>
-            <div className="stat-item" onClick={() => { if(posts.length > 0) toggleLike(posts[0].id, posts[0].liked); }}>
-              <HeartIcon /> {t.likedPosts} ({posts.filter(p => p.liked).length + 223})
+            <div className="stat-item" style={{ cursor: "default" }}>
+              <span style={{ fontSize: "16px", marginRight: "8px" }}>👑</span> {t.vipTracker} : <strong style={{ color: "#00ff9d", marginLeft: "4px" }}>17 / 50</strong>
             </div>
           </div>
 
