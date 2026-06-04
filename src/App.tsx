@@ -4,6 +4,7 @@ import { collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc, increm
 import foreverYoung from "../forever_young.jpg";
 import pastParty1 from "../past_party_1_1780361077564.png";
 import pastParty2 from "../past_party_2_1780361120358.png";
+import WaiverPopup from "./WaiverPopup";
 
 // ── SVG Icons (Material Style for 2010 feel) ──
 const LikeIcon = ({ active }: { active: boolean }) => (
@@ -308,6 +309,7 @@ export default function App() {
 
   return (
     <>
+      <WaiverPopup />
       {/* ── Top Nav (Classic 2010 Tumblr Slate) ── */}
       <nav className="tumblr-nav">
         <div style={{ width: "100%", padding: "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
