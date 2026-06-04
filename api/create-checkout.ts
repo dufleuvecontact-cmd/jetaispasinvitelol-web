@@ -17,6 +17,7 @@ export default async function handler(
   }
 
   const stripe = new Stripe(stripeKey, {
+    // @ts-expect-error
     apiVersion: '2023-10-16', // Use a stable API version
   });
 
