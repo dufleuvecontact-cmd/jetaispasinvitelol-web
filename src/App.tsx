@@ -219,8 +219,8 @@ export default function App() {
     e.preventDefault();
     if (sidebarPhone.trim()) {
       try {
-        // 1. Insert phone number into the 'subscribers' collection in Firestore as backup
-        await addDoc(collection(db, "subscribers"), {
+        // 1. Insert phone number into the 'smsWaitlist' collection in Firestore as backup
+        await addDoc(collection(db, "smsWaitlist"), {
           phone_number: sidebarPhone,
           created_at: serverTimestamp()
         });
