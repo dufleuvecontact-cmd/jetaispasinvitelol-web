@@ -183,35 +183,7 @@ export default function App() {
         });
         setPosts(fetched);
       } else {
-        // Fallback static
-        setPosts([
-          {
-            id: "1",
-            title: "#001 – HANGAR PARTY",
-            date: "",
-            location: "",
-            tickets: "",
-            image: foreverYoung,
-            likes: 1420,
-            reposts: 342,
-            liked: false,
-            tags: ["#2016", "#la", "#houseparty"],
-            username: "jetaispasinvitelol"
-          }
-        ]);
-        // Seed the database
-        addDoc(collection(db, "events"), {
-            title: "#001 – HANGAR PARTY",
-            date: "",
-            location: "",
-            tickets_text: "",
-            image_url: "/forever_young.jpg",
-            likes: 1420,
-            reposts: 342,
-            tags: ["#2016", "#la", "#houseparty"],
-            username: "jetaispasinvitelol",
-            created_at: serverTimestamp()
-        }).catch(console.error);
+        setPosts([]);
       }
       setLoading(false);
     });
@@ -377,6 +349,11 @@ export default function App() {
           
           {/* Infinite Party Feed Card List */}
           <div className="flex flex-col">
+            {posts.length === 0 && !loading && (
+              <div style={{ padding: "40px", textAlign: "center", color: "#a8b6c5", fontSize: "16px", fontStyle: "italic", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0" }}>
+                feed this is here parties/ events wiill be posted
+              </div>
+            )}
             {posts.map(post => (
               <div className="post-row" key={post.id} id={`post-${post.id}`}>
                 
