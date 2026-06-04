@@ -356,16 +356,12 @@ export default function App() {
           
           {/* Infinite Party Feed Card List */}
           <div className="flex flex-col">
-            {loading ? (
-              <div style={{ padding: "60px", textAlign: "center", color: "#a8b6c5", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0", animation: "pulse 1.5s infinite" }}>
-                <div style={{ fontSize: "24px", fontStyle: "italic", fontWeight: "bold", opacity: 0.5 }}>{t.loading}</div>
-              </div>
-            ) : posts.length === 0 ? (
+            {posts.length === 0 && (
               <div style={{ padding: "60px", textAlign: "center", color: "#a8b6c5", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0" }}>
                 <div style={{ fontSize: "64px", fontWeight: "bold", color: "#ff6b9d", marginBottom: "20px" }}>:(</div>
                 <div style={{ fontSize: "24px", fontStyle: "italic", fontWeight: "bold" }}>{t.noEvents}</div>
               </div>
-            ) : null}
+            )}
             {!loading && posts.map(post => (
               <div className="post-row" key={post.id} id={`post-${post.id}`}>
                 
