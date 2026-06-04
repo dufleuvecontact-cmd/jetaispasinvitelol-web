@@ -131,6 +131,7 @@ export default function App() {
 
   const [showIgForm, setShowIgForm] = useState(false);
   const [igUsername, setIgUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [sidebarIgSubmitted, setSidebarIgSubmitted] = useState(false);
   const [isUnsubscribe, setIsUnsubscribe] = useState(false);
   const [unsubscribeMessage, setUnsubscribeMessage] = useState("");
@@ -181,30 +182,45 @@ export default function App() {
 
   const handleIgSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (igUsername.trim()) {
+    if (igUsername.trim() && email.trim()) {
       try {
         if (isUnsubscribe) {
-          const q = query(collection(db, "igWaitlist"), where("ig_username", "==", igUsername));
+          const q = query(collection(db, "igWaitlist"), where("email", "==", email));
           const querySnapshot = await getDocs(q);
           querySnapshot.forEach(async (docSnapshot) => {
             await deleteDoc(doc(db, "igWaitlist", docSnapshot.id));
           });
+          const res = await fetch("/api/unsubscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email })
+          });
+          if (!res.ok) console.error("Failed to unsubscribe");
           setUnsubscribeMessage(lang === "fr" ? "Désabonnement réussi." : "Successfully unsubscribed.");
           setTimeout(() => {
             setUnsubscribeMessage("");
             setIgUsername("");
+            setEmail("");
             setShowIgForm(false);
             setIsUnsubscribe(false);
           }, 4000);
         } else {
           await addDoc(collection(db, "igWaitlist"), {
             ig_username: igUsername,
+            email: email,
             created_at: serverTimestamp()
           });
+          const res = await fetch("/api/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, ig_username: igUsername })
+          });
+          if (!res.ok) console.error("Failed to subscribe");
           setSidebarIgSubmitted(true);
           setTimeout(() => {
             setSidebarIgSubmitted(false);
             setIgUsername("");
+            setEmail("");
             setShowIgForm(false);
           }, 4000);
         }
@@ -367,9 +383,9 @@ export default function App() {
               <MailIcon /> {t.smsBtn}
             </button>
           ) : (
-            <div className="post-waitlist-section" style={{ textAlign: "center", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#c77dff'}`, boxShadow: `0 0 10px ${isUnsubscribe ? 'rgba(255, 77, 77, 0.2)' : 'rgba(199, 125, 255, 0.2)'}` }}>
+            <div className="post-waitlist-section" style={{ textAlign: "center", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#ff6b9d'}`, boxShadow: `0 0 10px ${isUnsubscribe ? 'rgba(255, 77, 77, 0.2)' : 'rgba(255, 107, 157, 0.2)'}` }}>
               {sidebarIgSubmitted ? (
-                <div style={{ color: "#c77dff", fontWeight: "bold", fontSize: "16px", padding: "10px" }}>
+                <div style={{ color: "#ff6b9d", fontWeight: "bold", fontSize: "16px", padding: "10px" }}>
                   {lang === "fr" ? "Merci! Vous êtes sur la liste." : "Thanks! You're on the list."}
                 </div>
               ) : unsubscribeMessage ? (
@@ -378,10 +394,19 @@ export default function App() {
                 </div>
               ) : (
                 <form onSubmit={handleIgSubmit}>
-                  <div style={{ marginBottom: "10px", fontSize: "14px", fontWeight: "bold", color: isUnsubscribe ? "#ff4d4d" : "#c77dff" }}>
-                    {isUnsubscribe ? (lang === "fr" ? "Désabonnement IG" : "IG Unsubscribe") : (lang === "fr" ? "Alerte IG (100 premières places)" : "IG Alert (First 100 spots)")}
+                  <div style={{ marginBottom: "10px", fontSize: "14px", fontWeight: "bold", color: isUnsubscribe ? "#ff4d4d" : "#ff6b9d" }}>
+                    {isUnsubscribe ? (lang === "fr" ? "Désabonnement IG" : "IG Unsubscribe") : "Alerte Instagram"}
                   </div>
-                  <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
+                    <input 
+                      type="email" 
+                      placeholder="Email" 
+                      className="form-input waitlist-input"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      style={{ width: "100%", maxWidth: "180px", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#3f4757'}`, backgroundColor: "#1a1e24", color: "#a8b6c5" }}
+                    />
                     <input 
                       type="text" 
                       placeholder="@username" 
@@ -389,10 +414,10 @@ export default function App() {
                       value={igUsername}
                       onChange={(e) => setIgUsername(e.target.value)}
                       required
-                      style={{ flex: 1, maxWidth: "180px", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#3f4757'}`, backgroundColor: "#1a1e24", color: "#a8b6c5" }}
+                      style={{ width: "100%", maxWidth: "180px", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#3f4757'}`, backgroundColor: "#1a1e24", color: "#a8b6c5" }}
                     />
-                    <button type="submit" className="form-submit-btn waitlist-submit-btn" style={{ padding: "6px", backgroundColor: isUnsubscribe ? "#ff4d4d" : "#c77dff", color: isUnsubscribe ? "#fff" : "#1a1e24" }}>
-                      {isUnsubscribe ? (lang === "fr" ? "Désabonner" : "Unsubscribe") : "OK"}
+                    <button type="submit" className="form-submit-btn waitlist-submit-btn" style={{ padding: "4px 12px", fontSize: "11px", backgroundColor: isUnsubscribe ? "#ff4d4d" : "#ff6b9d", color: isUnsubscribe ? "#fff" : "#1a1e24", width: "fit-content", marginTop: "4px" }}>
+                      {isUnsubscribe ? (lang === "fr" ? "Désabonner" : "Unsubscribe") : (lang === "fr" ? "S'inscrire" : "Sign Up")}
                     </button>
                   </div>
                   <div style={{ marginTop: "12px", fontSize: "11px", color: "#a8b6c5" }}>
