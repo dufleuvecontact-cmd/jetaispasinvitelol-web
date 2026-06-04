@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "./LanguageContext";
 import { db } from "./firebaseClient";
-import { collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc, increment, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import foreverYoung from "../forever_young.jpg";
 import pastParty1 from "../past_party_1_1780361077564.png";
 import pastParty2 from "../past_party_2_1780361120358.png";
@@ -38,14 +38,6 @@ const QuestionIcon = () => (
   <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
 );
 
-const PowerIcon = () => (
-  <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
-);
-
-const HeartIcon = () => (
-  <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-);
-
 const CompassIcon = () => (
   <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13l-8 3 3 8 8-3-3-8zm-1 9c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
 );
@@ -53,24 +45,6 @@ const CompassIcon = () => (
 const AddUserIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" style={{ fill: "currentColor" }}><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
 );
-
-function GlitchText({ length }: { length: number }) {
-  const [text, setText] = useState("");
-
-  useEffect(() => {
-    const chars = "????????????????????????????????????????????????????????????0123456789!?X";
-    const interval = setInterval(() => {
-      let result = "";
-      for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      setText(result);
-    }, 70);
-    return () => clearInterval(interval);
-  }, [length]);
-
-  return <span className="glitch-text">{text}</span>;
-}
 
 interface PartyPost {
   id: string;
@@ -158,6 +132,8 @@ export default function App() {
   const [showSmsForm, setShowSmsForm] = useState(false);
   const [sidebarPhone, setSidebarPhone] = useState("");
   const [sidebarSmsSubmitted, setSidebarSmsSubmitted] = useState(false);
+  const [isUnsubscribe, setIsUnsubscribe] = useState(false);
+  const [unsubscribeMessage, setUnsubscribeMessage] = useState("");
   const [preordered, setPreordered] = useState(false);
   const [showNoPartyAlert, setShowNoPartyAlert] = useState(false);
 
@@ -203,49 +179,49 @@ export default function App() {
     return () => unsub();
   }, []);
 
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    if (query.get("success")) {
-      setPreordered(true);
-      window.history.replaceState({}, document.title, "/");
-    }
-    if (query.get("canceled")) {
-      alert("La commande a été annulée. / Order was canceled.");
-      window.history.replaceState({}, document.title, "/");
-    }
-  }, []);
-
   const handleSmsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sidebarPhone.trim()) {
       try {
-        // 1. Insert phone number into the 'smsWaitlist' collection in Firestore as backup
-        await addDoc(collection(db, "smsWaitlist"), {
-          phone_number: sidebarPhone,
-          created_at: serverTimestamp()
-        });
-
-        // 2. Call our Vercel API to subscribe them to Klaviyo
-        const res = await fetch("/api/subscribe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone_number: sidebarPhone })
-        });
-
-        if (!res.ok) {
-          console.error("Failed to subscribe to Klaviyo");
+        if (isUnsubscribe) {
+          const q = query(collection(db, "smsWaitlist"), where("phone_number", "==", sidebarPhone));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (docSnapshot) => {
+            await deleteDoc(doc(db, "smsWaitlist", docSnapshot.id));
+          });
+          const res = await fetch("/api/unsubscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone_number: sidebarPhone })
+          });
+          if (!res.ok) console.error("Failed to unsubscribe");
+          setUnsubscribeMessage(lang === "fr" ? "Désabonnement réussi." : "Successfully unsubscribed.");
+          setTimeout(() => {
+            setUnsubscribeMessage("");
+            setSidebarPhone("");
+            setShowSmsForm(false);
+            setIsUnsubscribe(false);
+          }, 4000);
+        } else {
+          await addDoc(collection(db, "smsWaitlist"), {
+            phone_number: sidebarPhone,
+            created_at: serverTimestamp()
+          });
+          const res = await fetch("/api/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone_number: sidebarPhone })
+          });
+          if (!res.ok) console.error("Failed to subscribe");
+          setSidebarSmsSubmitted(true);
+          setTimeout(() => {
+            setSidebarSmsSubmitted(false);
+            setSidebarPhone("");
+            setShowSmsForm(false);
+          }, 4000);
         }
-
-        setSidebarSmsSubmitted(true);
-        setTimeout(() => {
-          setSidebarSmsSubmitted(false);
-          setSidebarPhone("");
-          setShowSmsForm(false);
-        }, 4000);
-
       } catch (err) {
         console.error("Submission error:", err);
-        alert("Erreur lors de l'inscription.");
       }
     }
   };
@@ -262,13 +238,14 @@ export default function App() {
       return post;
     }));
 
-    if (id === "1") return; // Don't try to update fallback
-    try {
-      await updateDoc(doc(db, "events", id), {
-        likes: increment(currentlyLiked ? -1 : 1)
-      });
-    } catch (e) {
-      console.error(e);
+    if (id !== "1") {
+      try {
+        await updateDoc(doc(db, "events", id), {
+          likes: increment(currentlyLiked ? -1 : 1)
+        });
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
@@ -295,16 +272,12 @@ export default function App() {
 
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: title,
-          text: "Check out this party!",
-          url: window.location.href
-        });
+        await navigator.share({ title: title, text: "Check out this party!", url: window.location.href });
       } catch (err) {
         console.error("Share failed:", err);
       }
     } else {
-      alert("To share to your Instagram Story, please open this page on a mobile device!");
+      alert("Please open this page on a mobile device to share!");
     }
   };
 
@@ -315,35 +288,18 @@ export default function App() {
   return (
     <>
       <WaiverPopup />
-      {/* ── Top Nav (Classic 2010 Tumblr Slate) ── */}
       <nav className="tumblr-nav">
         <div style={{ width: "100%", padding: "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span className="nav-logo" style={{ fontFamily: "Georgia, serif", fontStyle: "normal", fontWeight: "normal", fontSize: "18px", letterSpacing: "normal" }}>
-              
-            </span>
+            <span className="nav-logo" style={{ fontFamily: "Georgia, serif", fontStyle: "normal", fontWeight: "normal", fontSize: "18px", letterSpacing: "normal" }}></span>
           </div>
           <div className="nav-spacer" style={{ flex: 1 }} />
-          
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            {/* Lang Switcher */}
             <div className="lang-switcher" style={{ display: "flex", gap: "8px", fontSize: "11px", fontFamily: "monospace", fontWeight: "bold" }}>
-              <span 
-                onClick={() => setLang("fr")} 
-                style={{ cursor: "pointer", color: lang === "fr" ? "#ff6b9d" : "#94a3b8", textDecoration: lang === "fr" ? "underline" : "none" }}
-              >
-                FR
-              </span>
+              <span onClick={() => setLang("fr")} style={{ cursor: "pointer", color: lang === "fr" ? "#ff6b9d" : "#94a3b8", textDecoration: lang === "fr" ? "underline" : "none" }}>FR</span>
               <span style={{ color: "#20242f" }}>|</span>
-              <span 
-                onClick={() => setLang("en")} 
-                style={{ cursor: "pointer", color: lang === "en" ? "#ff6b9d" : "#94a3b8", textDecoration: lang === "en" ? "underline" : "none" }}
-              >
-                EN
-              </span>
+              <span onClick={() => setLang("en")} style={{ cursor: "pointer", color: lang === "en" ? "#ff6b9d" : "#94a3b8", textDecoration: lang === "en" ? "underline" : "none" }}>EN</span>
             </div>
-
-            {/* Nav Icons */}
             <div className="nav-icons" style={{ display: "flex", gap: "14px" }}>
               <div className="nav-icon-link" title={t.dashboard} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><HomeIcon /></div>
               <a href="https://instagram.com/jetaispasinvite" target="_blank" rel="noreferrer" className="nav-icon-link" title="Instagram" style={{ color: "inherit" }}><MailIcon /></a>
@@ -354,13 +310,8 @@ export default function App() {
         </div>
       </nav>
 
-      {/* ── Content Layout ── */}
       <div className="tumblr-layout">
-        
-        {/* Left Feed Column */}
         <div className="feed-col">
-          
-          {/* Infinite Party Feed Card List */}
           <div className="flex flex-col">
             {posts.length === 0 && (
               <div style={{ padding: "60px", textAlign: "center", color: "#a8b6c5", border: "1px dashed #3f4757", borderRadius: "8px", margin: "20px 0" }}>
@@ -369,149 +320,101 @@ export default function App() {
               </div>
             )}
             
-            {/* Pinned Info Post */}
             <InfoPost />
 
             {!loading && posts.map(post => (
               <div className="post-row" key={post.id} id={`post-${post.id}`}>
-                
-                {/* Left post avatar */}
                 <div className="post-avatar">
-                  <div className="w-full h-full bg-gradient-to-tr from-[#0f1115] to-[#2a2e37] flex items-center justify-center text-white font-extrabold text-xl select-none" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
-                    J
-                  </div>
+                  <div className="w-full h-full bg-gradient-to-tr from-[#0f1115] to-[#2a2e37] flex items-center justify-center text-white font-extrabold text-xl select-none" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>J</div>
                 </div>
-
-                {/* Right white card */}
                 <article className="post-card">
-                  
-                  {/* Card Header metadata */}
                   <div className="party-card-header flex items-center justify-between">
-                    <div>
-                      <a href="#feed" style={{ color: "#ff6b9d" }}>{post.username}</a>
-                    </div>
+                    <div><a href="#feed" style={{ color: "#ff6b9d" }}>{post.username}</a></div>
                     <span style={{ fontSize: "11px", color: "#a8b6c5" }}>{post.title}</span>
                   </div>
-
-                  {/* Details block */}
                   <div className="party-details">
                     <h2 className="party-title">{post.title}</h2>
-                    
                     <div className="party-metadata">
-                      <div className="meta-row">
-                        <strong>{t.dateLabel}</strong> {t.eventDate}
-                      </div>
-                      <div className="meta-row">
-                        <strong>{t.lieuLabel}</strong> {t.eventLocation}
-                      </div>
-                      <div className="meta-row">
-                        <strong>{t.ticketLabel}</strong> {t.eventTickets}
-                      </div>
+                      <div className="meta-row"><strong>{t.dateLabel}</strong> {t.eventDate}</div>
+                      <div className="meta-row"><strong>{t.lieuLabel}</strong> {t.eventLocation}</div>
+                      <div className="meta-row"><strong>{t.ticketLabel}</strong> {t.eventTickets}</div>
                     </div>
-
-                    {/* Pre-order Ticket Button */}
                     <div style={{ marginTop: "20px" }}>
                       {!preordered ? (
-                        <button 
-                          onClick={handleCheckout}
-                          className="sidebar-btn btn-sidebar-green waitlist-submit-btn" 
-                          style={{ width: "fit-content", padding: "10px 16px", fontSize: "12px", letterSpacing: "0.5px" }}
-                        >
+                        <button onClick={handleCheckout} className="sidebar-btn btn-sidebar-green waitlist-submit-btn" style={{ width: "fit-content", padding: "10px 16px", fontSize: "12px", letterSpacing: "0.5px" }}>
                           <AddUserIcon /> {t.preorderBtnText}
                         </button>
                       ) : (
                         <div className="post-waitlist-section" style={{ textAlign: "center", border: "1px solid #c77dff", boxShadow: "0 0 10px rgba(199, 125, 255, 0.2)" }}>
-                          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#c77dff", marginBottom: "4px" }}>
-                            {t.preorderConfirmed}
-                          </div>
-                          <div style={{ fontSize: "12px", color: "#cbd5e1" }}>
-                            {t.preorderSubtext}
-                          </div>
+                          <div style={{ fontSize: "14px", fontWeight: "bold", color: "#c77dff", marginBottom: "4px" }}>{t.preorderConfirmed}</div>
+                          <div style={{ fontSize: "12px", color: "#cbd5e1" }}>{t.preorderSubtext}</div>
                         </div>
                       )}
                     </div>
-
-                    <div className="party-tags" style={{ marginTop: "15px" }}>
-                      {post.tags.map((tag, idx) => (
-                        <span key={idx} style={{ cursor: "pointer" }}>{tag}</span>
-                      ))}
-                    </div>
                   </div>
-
-                  {/* Footer reblog/like bar */}
                   <div className="party-card-footer" style={{ justifyContent: "flex-end" }}>
                     <div className="action-buttons">
-                      <button 
-                        className="action-btn"
-                        onClick={() => handleRepost(post.id, post.title)}
-                      >
-                        <ReblogIcon /> <span style={{ marginLeft: "4px" }}>{post.reposts} {t.reblog}</span>
-                      </button>
-                      <button 
-                        className={`action-btn ${post.liked ? "active" : ""}`}
-                        onClick={() => toggleLike(post.id, post.liked)}
-                      >
-                        <LikeIcon active={post.liked} /> <span style={{ marginLeft: "4px" }}>{post.likes} {t.like}</span>
-                      </button>
+                      <button className="action-btn" onClick={() => handleRepost(post.id, post.title)}><ReblogIcon /> <span style={{ marginLeft: "4px" }}>{post.reposts} {t.reblog}</span></button>
+                      <button className={`action-btn ${post.liked ? "active" : ""}`} onClick={() => toggleLike(post.id, post.liked)}><LikeIcon active={post.liked} /> <span style={{ marginLeft: "4px" }}>{post.likes} {t.like}</span></button>
                     </div>
                   </div>
-
                 </article>
               </div>
             ))}
           </div>
-
         </div>
 
-        {/* Right Sidebar Column */}
         <div className="sidebar-col">
-          
-          {/* Green waitlist active widget */}
-          <button className="sidebar-btn btn-sidebar-green" onClick={() => { 
-            if (posts.length === 0) { 
-              setShowNoPartyAlert(true); 
-              setTimeout(() => setShowNoPartyAlert(false), 4000); 
-            } else { 
-              focusPost("1"); 
-            } 
-          }}>
+          <button className="sidebar-btn btn-sidebar-green" onClick={() => { if (posts.length === 0) { setShowNoPartyAlert(true); setTimeout(() => setShowNoPartyAlert(false), 4000); } else { focusPost("1"); } }}>
             <AddUserIcon /> {t.reserveBtn}
           </button>
-
           {showNoPartyAlert && (
             <div className="sidebar-stats-box" style={{ border: "1px solid #ff6b9d", color: "#ff6b9d", textAlign: "center", fontWeight: "bold", marginTop: "-10px", marginBottom: "15px", animation: "pulse 2s infinite" }}>
               {t.noPartyAlert}
             </div>
           )}
 
-          {/* SMS Updates Button/Widget */}
           {!showSmsForm ? (
             <button className="sidebar-link-btn" onClick={() => setShowSmsForm(true)}>
               <MailIcon /> {t.smsBtn}
             </button>
           ) : (
-            <div className="sidebar-stats-box" style={{ border: "1px solid #ff6b9d" }}>
-              <div style={{ color: "#ff6b9d", fontWeight: "bold", fontSize: "11px", marginBottom: "8px" }}>
-                {t.smsHeader}
-              </div>
-              <form onSubmit={handleSmsSubmit}>
-                <input 
-                  type="tel" 
-                  required 
-                  placeholder="(418) 000-0000" 
-                  value={sidebarPhone} 
-                  onChange={e => setSidebarPhone(e.target.value)} 
-                  className="form-input glowing-sms-input" 
-                  style={{ fontSize: "12px", padding: "8px", marginBottom: "8px" }}
-                />
-                <button type="submit" className="form-submit-btn waitlist-submit-btn" style={{ padding: "6px" }}>
-                  {t.smsSubscribe}
-                </button>
-              </form>
-              {sidebarSmsSubmitted && (
-                <div style={{ color: "#ff6b9d", fontSize: "11px", marginTop: "8px", textAlign: "center" }}>
-                  {t.smsSuccess}
+            <div className="post-waitlist-section" style={{ textAlign: "center", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#c77dff'}`, boxShadow: `0 0 10px ${isUnsubscribe ? 'rgba(255, 77, 77, 0.2)' : 'rgba(199, 125, 255, 0.2)'}` }}>
+              {sidebarSmsSubmitted ? (
+                <div style={{ color: "#c77dff", fontWeight: "bold", fontSize: "16px", padding: "10px" }}>
+                  {lang === "fr" ? "Merci! Vous êtes sur la liste." : "Thanks! You're on the list."}
                 </div>
+              ) : unsubscribeMessage ? (
+                <div style={{ color: "#ff4d4d", fontWeight: "bold", fontSize: "16px", padding: "10px" }}>
+                  {unsubscribeMessage}
+                </div>
+              ) : (
+                <form onSubmit={handleSmsSubmit}>
+                  <div style={{ marginBottom: "10px", fontSize: "14px", fontWeight: "bold", color: isUnsubscribe ? "#ff4d4d" : "#c77dff" }}>
+                    {isUnsubscribe ? (lang === "fr" ? "Désabonnement SMS" : "SMS Unsubscribe") : (lang === "fr" ? "Alerte SMS (100 premières places)" : "SMS Alert (First 100 spots)")}
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                    <input 
+                      type="tel" 
+                      placeholder="(514) 000-0000" 
+                      className="form-input waitlist-input"
+                      value={sidebarPhone}
+                      onChange={(e) => setSidebarPhone(e.target.value)}
+                      required
+                      style={{ flex: 1, maxWidth: "180px", border: `1px solid ${isUnsubscribe ? '#ff4d4d' : '#3f4757'}`, backgroundColor: "#1a1e24", color: "#a8b6c5" }}
+                    />
+                    <button type="submit" className="form-submit-btn waitlist-submit-btn" style={{ padding: "6px", backgroundColor: isUnsubscribe ? "#ff4d4d" : "#c77dff", color: isUnsubscribe ? "#fff" : "#1a1e24" }}>
+                      {isUnsubscribe ? (lang === "fr" ? "Désabonner" : "Unsubscribe") : "OK"}
+                    </button>
+                  </div>
+                  <div style={{ marginTop: "12px", fontSize: "11px", color: "#a8b6c5" }}>
+                    {!isUnsubscribe ? (
+                      <span onClick={() => setIsUnsubscribe(true)} style={{ cursor: "pointer", textDecoration: "underline" }}>{lang === "fr" ? "Se désabonner des alertes" : "Unsubscribe from alerts"}</span>
+                    ) : (
+                      <span onClick={() => setIsUnsubscribe(false)} style={{ cursor: "pointer", textDecoration: "underline" }}>{lang === "fr" ? "S'abonner aux alertes" : "Subscribe to alerts"}</span>
+                    )}
+                  </div>
+                </form>
               )}
             </div>
           )}
